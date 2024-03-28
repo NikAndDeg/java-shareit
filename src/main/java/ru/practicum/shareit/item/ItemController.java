@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/items")
 @RequiredArgsConstructor
 public class ItemController {
-	private final static String USER_ID_HEADER = "X-Sharer-User-Id";
+	private static final String USER_ID_HEADER = "X-Sharer-User-Id";
 	private final ItemService itemService;
 	private final DtoMapper<ItemDto, Item> mapper;
 
