@@ -7,7 +7,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
-public class FakeItemStorage implements ItemStorage {
+public class InMemoryItemStorage implements ItemStorage {
 	private final Map<Integer, Item> items = new HashMap<>();
 
 	private int counter = 0;
@@ -26,14 +26,9 @@ public class FakeItemStorage implements ItemStorage {
 
 	@Override
 	public List<Item> getByKeys(List<Integer> ids) {
-		List<Item> itemList = new ArrayList<>();
-		items.forEach(
-				(id, item) -> {
-					if (ids.contains(id))
-						itemList.add(item);
-				}
-		);
-		return itemList;
+		return items.values().stream()
+				.filter(item -> ids.contains(item.getId()))
+				.collect(Collectors.toList());
 	}
 
 	@Override

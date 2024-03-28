@@ -5,9 +5,10 @@ import ru.practicum.shareit.Storage;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
-public class FakeUserStorage implements Storage<Integer, User> {
+public class InMemoryUserStorage implements Storage<Integer, User> {
 	private final Map<Integer, User> users = new HashMap<>();
 
 	private int counter = 0;
@@ -26,14 +27,9 @@ public class FakeUserStorage implements Storage<Integer, User> {
 
 	@Override
 	public List<User> getByKeys(List<Integer> ids) {
-		List<User> userList = new ArrayList<>();
-		users.forEach(
-				(id, user) -> {
-					if (ids.contains(id))
-						userList.add(user);
-				}
-		);
-		return userList;
+		return users.values().stream()
+				.filter(user -> ids.contains(user.getId()))
+				.collect(Collectors.toList());
 	}
 
 	@Override

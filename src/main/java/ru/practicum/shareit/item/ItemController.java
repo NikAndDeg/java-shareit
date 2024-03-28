@@ -1,10 +1,9 @@
 package ru.practicum.shareit.item;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.DtoMapper;
-import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.model.ItemDto;
 
@@ -15,26 +14,16 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestController
 @RequestMapping("/items")
+@RequiredArgsConstructor
 public class ItemController {
+	private final static String USER_ID_HEADER = "X-Sharer-User-Id";
 	private final ItemService itemService;
 	private final DtoMapper<ItemDto, Item> mapper;
 
-	@Autowired
-	public ItemController(ItemService itemService,
-						  DtoMapper<ItemDto, Item> mapper) {
-		this.itemService = itemService;
-		this.mapper = mapper;
-	}
-
 	@PostMapping
 	public ItemDto addItem(@RequestBody @Valid ItemDto itemDto,
-						   @RequestHeader("X-Sharer-User-Id") Integer userId) {
+						   @RequestHeader(USER_ID_HEADER) Integer userId) {
 		log.info("Request to save item [{}] with userId [{}]", itemDto, userId);
-		if (itemDto.getName() == null || itemDto.getDescription() == null || itemDto.getAvailable() == null
-				|| itemDto.getName().isBlank() || itemDto.getDescription().isBlank()) {
-			log.info("Item isn't save. Item without name or description or available.");
-			throw new BadRequestException("Item without name or description or available.");
-		}
 		Item item = mapper.toModel(itemDto, userId.toString());
 		Item savedItem = itemService.addItem(item);
 		log.info("Item [{}] saved.", savedItem);
@@ -43,7 +32,7 @@ public class ItemController {
 
 	@PatchMapping("/{itemId}")
 	public ItemDto updateItem(@RequestBody @Valid ItemDto itemDto,
-							  @RequestHeader("X-Sharer-User-Id") Integer userId,
+							  @RequestHeader(USER_ID_HEADER) Integer userId,
 							  @PathVariable int itemId) {
 		log.info("Request to update item [{}] with userId [{}].", itemDto, userId);
 		Item item = mapper.toModel(itemDto, userId.toString());
@@ -53,7 +42,7 @@ public class ItemController {
 	}
 
 	@GetMapping
-	public List<ItemDto> getAllItems(@RequestHeader("X-Sharer-User-Id") int userId) {
+	public List<ItemDto> getAllItems(@RequestHeader(USER_ID_HEADER) int userId) {
 		log.info("Request to get all items with userId [{}].", userId);
 		List<Item> items = itemService.getAllItemsByUserId(userId);
 		log.info("All items received.");
@@ -72,7 +61,7 @@ public class ItemController {
 
 	@DeleteMapping("/{itemId}")
 	public ItemDto deleteItemById(@PathVariable int itemId,
-								  @RequestHeader("X-Sharer-User-Id") int userId) {
+								  @RequestHeader(USER_ID_HEADER) int userId) {
 		log.info("Request to delete item by id [{}], with userId [{}].", itemId, userId);
 		Item deletedItem = itemService.deleteItemById(itemId, userId);
 		log.info("Item [{}] deleted.", deletedItem);

@@ -1,9 +1,8 @@
 package ru.practicum.shareit.user;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.user.model.User;
 
 import javax.validation.Valid;
@@ -12,22 +11,13 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping(path = "/users")
+@RequiredArgsConstructor
 public class UserController {
 	private final UserService userService;
-
-	@Autowired
-	public UserController(UserService userService) {
-		this.userService = userService;
-	}
 
 	@PostMapping
 	public User addUser(@RequestBody @Valid User user) {
 		log.info("Request to save user [{}].", user);
-		if (user.getEmail() == null || user.getName() == null
-				|| user.getEmail().isBlank() || user.getName().isBlank()) {
-			log.info("User not saved. User with empty name or email.");
-			throw new BadRequestException("User with empty name or email.");
-		}
 		User savedUser = userService.addUser(user);
 		log.info("User [{}] saved.", savedUser);
 		return savedUser;
