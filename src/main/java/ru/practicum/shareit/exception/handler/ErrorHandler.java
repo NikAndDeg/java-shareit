@@ -1,13 +1,13 @@
-package ru.practicum.shareit.excaption.handler;
+package ru.practicum.shareit.exception.handler;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.practicum.shareit.excaption.BadRequestException;
-import ru.practicum.shareit.excaption.DataAlreadyExistsException;
-import ru.practicum.shareit.excaption.DataNotFoundException;
-import ru.practicum.shareit.excaption.user.UserNotOwnerException;
+import ru.practicum.shareit.exception.BadRequestException;
+import ru.practicum.shareit.exception.DataAlreadyExistsException;
+import ru.practicum.shareit.exception.DataNotFoundException;
+import ru.practicum.shareit.exception.user.UserNotOwnerException;
 
 @RestControllerAdvice("ru.practicum.shareit")
 public class ErrorHandler {

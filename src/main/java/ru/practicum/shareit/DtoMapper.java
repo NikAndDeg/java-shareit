@@ -1,6 +1,8 @@
 package ru.practicum.shareit;
 
-public interface DtoMapper<Dto, Model> {
-	Dto toDto(Model model);
-	Model toModel(Dto dto, String... ars);
+public interface DtoMapper<D, M> {
+
+	D toDto(M model);
+
+	M toModel(D dto, String... ars);
 }

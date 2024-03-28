@@ -25,11 +25,11 @@ public class FakeItemStorage implements ItemStorage {
 	}
 
 	@Override
-	public List<Item> getByKeys(List<Integer> IDs) {
+	public List<Item> getByKeys(List<Integer> ids) {
 		List<Item> itemList = new ArrayList<>();
 		items.forEach(
 				(id, item) -> {
-					if (IDs.contains(id))
+					if (ids.contains(id))
 						itemList.add(item);
 				}
 		);

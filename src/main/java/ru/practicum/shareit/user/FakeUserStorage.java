@@ -25,11 +25,11 @@ public class FakeUserStorage implements Storage<Integer, User> {
 	}
 
 	@Override
-	public List<User> getByKeys(List<Integer> IDs) {
+	public List<User> getByKeys(List<Integer> ids) {
 		List<User> userList = new ArrayList<>();
 		users.forEach(
 				(id, user) -> {
-					if (IDs.contains(id))
+					if (ids.contains(id))
 						userList.add(user);
 				}
 		);

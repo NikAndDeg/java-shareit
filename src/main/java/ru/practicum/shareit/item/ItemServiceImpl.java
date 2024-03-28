@@ -4,9 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.Storage;
-import ru.practicum.shareit.excaption.item.ItemNotFoundException;
-import ru.practicum.shareit.excaption.user.UserNotFoundException;
-import ru.practicum.shareit.excaption.user.UserNotOwnerException;
+import ru.practicum.shareit.exception.item.ItemNotFoundException;
+import ru.practicum.shareit.exception.user.UserNotFoundException;
+import ru.practicum.shareit.exception.user.UserNotOwnerException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
