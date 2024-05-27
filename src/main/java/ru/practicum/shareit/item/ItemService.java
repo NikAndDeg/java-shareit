@@ -9,15 +9,15 @@ import java.util.List;
 
 public interface ItemService {
 
-	Item addItem(Item item) throws UserNotFoundException;
+	Item addItem(Item item, Integer userId) throws UserNotFoundException;
 
-	Item updateItem(Item item, int itemId) throws ItemNotFoundException, UserNotOwnerException;
+	Item updateItem(Item dataToUpdate, Integer ownerId) throws ItemNotFoundException, UserNotOwnerException;
 
-	List<Item> getAllItemsByUserId(int userId) throws UserNotFoundException;
+	List<Item> getAllItemsByUserId(Integer userId) throws UserNotFoundException;
 
-	Item getItemById(int itemId) throws ItemNotFoundException;
+	Item getItemById(Integer itemId) throws ItemNotFoundException;
 
-	Item deleteItemById(int itemId, int userId) throws ItemNotFoundException, UserNotOwnerException;
+	Item deleteItemById(Integer itemId, Integer userId) throws ItemNotFoundException, UserNotOwnerException;
 
 	List<Item> searchByText(String text);
 }

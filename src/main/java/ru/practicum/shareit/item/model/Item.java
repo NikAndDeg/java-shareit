@@ -1,24 +1,53 @@
 package ru.practicum.shareit.item.model;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
+import org.hibernate.proxy.HibernateProxy;
+import ru.practicum.shareit.user.model.User;
 
-import javax.validation.constraints.Size;
+import javax.persistence.*;
+import java.util.Objects;
 
-@Data
-@Builder
+@Getter
+@Setter
+@ToString
+//Не забыть аннотировать поля со связями @ToString.Exclude
+@Entity
+@Table(name = "items", schema = "public")
 public class Item {
-	private int id;
-	@Size(max = 200, message = "size must be between 0 and 200")
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "item_id")
+	private Integer id;
+
+	@Column(name = "item_name",  length = 200, nullable = false)
 	private String name;
-	@Size(max = 200, message = "size must be between 0 and 200")
+
+	@Column(name = "description",  length = 200, nullable = false)
 	private String description;
-	@EqualsAndHashCode.Exclude
+
+	@Column(name = "available", nullable = false)
 	private Boolean available;
-	private int ownerId;
-	@EqualsAndHashCode.Exclude
-	private int requestId;
-	@EqualsAndHashCode.Exclude
-	private int bookingCounter;
+
+	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id", nullable = false)
+	@ToString.Exclude
+	private User owner;
+
+	//equals() и hashCode() подрезал отсюда
+	//https://jpa-buddy.com/blog/hopefully-the-final-article-about-equals-and-hashcode-for-jpa-entities-with-db-generated-ids/
+	@Override
+	public final boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null) return false;
+		Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+		Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+		if (thisEffectiveClass != oEffectiveClass) return false;
+		Item item = (Item) o;
+		return getId() != null && Objects.equals(getId(), item.getId());
+	}
+
+	@Override
+	public final int hashCode() {
+		return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+	}
 }

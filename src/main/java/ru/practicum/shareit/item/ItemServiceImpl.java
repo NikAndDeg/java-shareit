@@ -3,92 +3,87 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.Storage;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.item.ItemNotFoundException;
 import ru.practicum.shareit.exception.user.UserNotFoundException;
 import ru.practicum.shareit.exception.user.UserNotOwnerException;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
-	private final Storage<Integer, User> userStorage;
-	private final ItemStorage itemStorage;
+	private final UserRepository userRepository;
+	private final ItemRepository itemRepository;
 
 	@Override
-	public Item addItem(Item item) throws UserNotFoundException {
-		if (item.getName() == null || item.getDescription() == null || item.getAvailable() == null
-				|| item.getName().isBlank() || item.getDescription().isBlank()) {
-			log.warn("Item isn't save. Item without name or description or available.");
-			throw new BadRequestException("Item without name or description or available.");
-		}
-		int userId = item.getOwnerId();
-		if (!userStorage.containsKey(userId)) {
-			log.warn("Item not saved. User with id [{}] not found.", userId);
-			throw new UserNotFoundException("User with id [" + userId + "] doesn't exist.");
-		}
-		return itemStorage.add(item);
+	public Item addItem(Item item, Integer ownerId) throws UserNotFoundException {
+		if (item.getName() == null || item.getName().isBlank())
+			throw new BadRequestException("Item not saved. Item with empty name.");
+		if (item.getDescription() == null || item.getDescription().isBlank())
+			throw new BadRequestException("Item not saved. Item with empty description.");
+		if (item.getAvailable() == null)
+			throw new BadRequestException("Item not saved. Item with empty available.");
+		if (ownerId == null)
+			throw new BadRequestException("Item not saved. Item with empty owner's id.");
+		User owner = userRepository.findById(ownerId).orElseThrow(
+				() -> new UserNotFoundException("Item not saved. Owner with id [" + ownerId + "] not exists.")
+		);
+		item.setOwner(owner);
+		return itemRepository.save(item);
 	}
 
 	@Override
-	public Item updateItem(Item item, int itemId) throws ItemNotFoundException, UserNotOwnerException {
-		item.setId(itemId);
-		int userId = item.getOwnerId();
-		if (!itemStorage.isOwner(itemId, userId)) {
-			log.warn("Item not updated. User with id [{}] not owner item with id [{}].", userId, itemId);
-			throw new UserNotOwnerException("User not owner item.");
-		}
-		if (!itemStorage.containsKey(itemId)) {
-			log.warn("Item not updated. Item with id [{}] not exists.", itemId);
-			throw new ItemNotFoundException("Item with id [" + itemId + "] npt found.");
-		}
-		return itemStorage.update(item);
+	public Item updateItem(Item dataToUpdate, Integer ownerId) throws ItemNotFoundException, UserNotOwnerException {
+		Item updatableItem = itemRepository.findItemWithOwnerById(dataToUpdate.getId()).orElseThrow(
+				() -> new ItemNotFoundException("Item not updated. Item with id [" + dataToUpdate.getId() + "] not found.")
+		);
+		if (!updatableItem.getOwner().getId().equals(ownerId))
+			throw new UserNotOwnerException("Item not updated. User isn't owner of item.");
+		if (dataToUpdate.getName() != null)
+			updatableItem.setName(dataToUpdate.getName());
+		if (dataToUpdate.getDescription() != null)
+			updatableItem.setDescription(dataToUpdate.getDescription());
+		if (dataToUpdate.getAvailable() != null)
+			updatableItem.setAvailable(dataToUpdate.getAvailable());
+		return itemRepository.save(updatableItem);
 	}
 
 	@Override
-	public List<Item> getAllItemsByUserId(int userId) throws UserNotFoundException {
-		if (!userStorage.containsKey(userId)) {
-			log.warn("Items not received. User with id [{}] not found.", userId);
-			throw new UserNotFoundException("User with id [" + userId + "] doesn't exist.");
-		}
-		return itemStorage.getAllByUserId(userId);
+	public List<Item> getAllItemsByUserId(Integer userId) throws UserNotFoundException {
+		User user = userRepository.findUserWithItemsById(userId).orElseThrow(
+				() -> new UserNotFoundException("Items not received. User with id [" + userId + "] doesn't exist.")
+		);
+		return user.getItems();
 	}
 
 	@Override
-	public Item getItemById(int itemId) throws ItemNotFoundException {
-		Optional<Item> item = itemStorage.get(itemId);
-		if (item.isEmpty()) {
-			log.warn("Item not found. Item with id [{}] not exists.", itemId);
-			throw new ItemNotFoundException("Item with id [" + itemId + "] npt found.");
-		}
-		return item.get();
+	public Item getItemById(Integer itemId) throws ItemNotFoundException {
+		return itemRepository.findById(itemId).orElseThrow(
+				() -> new ItemNotFoundException("Item not found. Item with id [" + itemId + "] not exists.")
+		);
 	}
 
 	@Override
-	public Item deleteItemById(int itemId, int userId) throws ItemNotFoundException, UserNotOwnerException {
-		if (!itemStorage.isOwner(itemId, userId)) {
-			log.warn("Item not deleted. User with id [{}] not owner item with id [{}].", userId, itemId);
-			throw new UserNotOwnerException("User not owner item.");
-		}
-		Optional<Item> item = itemStorage.deleteByKey(itemId);
-		if (item.isEmpty()) {
-			log.warn("Item not deleted. Item with id [{}] not exists.", itemId);
-			throw new ItemNotFoundException("Item with id [" + itemId + "] npt found.");
-		}
-		return item.get();
+	public Item deleteItemById(Integer itemId, Integer ownerId) throws ItemNotFoundException, UserNotOwnerException {
+		Item removableItem = itemRepository.findItemWithOwnerById(itemId).orElseThrow(
+				() -> new ItemNotFoundException("Item not deleted. Item with id [" + itemId + "] not found.")
+		);
+		if (!removableItem.getOwner().getId().equals(ownerId))
+			throw new UserNotOwnerException("Item not deleted. User isn't owner of item.");
+		itemRepository.deleteById(itemId);
+		return removableItem;
 	}
 
 	@Override
 	public List<Item> searchByText(String text) {
 		if (text.isBlank())
 			return new ArrayList<>();
-		return itemStorage.searchByText(text);
+		return itemRepository.findItemByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndAvailableIs(text, text, true);
 	}
 }

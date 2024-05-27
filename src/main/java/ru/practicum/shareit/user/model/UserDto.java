@@ -1,20 +1,20 @@
-package ru.practicum.shareit.item.model;
+package ru.practicum.shareit.user.model;
 
 import lombok.Builder;
 import lombok.Data;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.Size;
 
 @Data
 @Builder
-public class ItemDto {
+public class UserDto {
 	private Integer id;
 
 	@Size(max = 200, message = "size must be between 0 and 200")
 	private String name;
 
+	@Email
 	@Size(max = 200, message = "size must be between 0 and 200")
-	private String description;
-
-	private Boolean available;
+	private String email;
 }

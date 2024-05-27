@@ -3,7 +3,7 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.DtoMapper;
+import ru.practicum.shareit.mapper.DtoMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.model.ItemDto;
 
@@ -24,8 +24,8 @@ public class ItemController {
 	public ItemDto addItem(@RequestBody @Valid ItemDto itemDto,
 						   @RequestHeader(USER_ID_HEADER) Integer userId) {
 		log.info("Request to save item [{}] with userId [{}]", itemDto, userId);
-		Item item = mapper.toModel(itemDto, userId.toString());
-		Item savedItem = itemService.addItem(item);
+		Item item = mapper.toModel(itemDto);
+		Item savedItem = itemService.addItem(item, userId);
 		log.info("Item [{}] saved.", savedItem);
 		return mapper.toDto(savedItem);
 	}
@@ -34,9 +34,10 @@ public class ItemController {
 	public ItemDto updateItem(@RequestBody @Valid ItemDto itemDto,
 							  @RequestHeader(USER_ID_HEADER) Integer userId,
 							  @PathVariable int itemId) {
+		itemDto.setId(itemId);
 		log.info("Request to update item [{}] with userId [{}].", itemDto, userId);
-		Item item = mapper.toModel(itemDto, userId.toString());
-		Item updatedItem = itemService.updateItem(item, itemId);
+		Item item = mapper.toModel(itemDto);
+		Item updatedItem = itemService.updateItem(item, userId);
 		log.info("Item [{}] updated.", updatedItem);
 		return mapper.toDto(updatedItem);
 	}

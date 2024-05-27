@@ -3,7 +3,6 @@ package ru.practicum.shareit.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.Storage;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.user.UserAlreadyExistsException;
 import ru.practicum.shareit.exception.user.UserNotFoundException;
@@ -16,58 +15,69 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-	private final Storage<Integer, User> storage;
+
+	private final UserRepository repository;
 
 	@Override
-	public User addUser(User user) throws UserAlreadyExistsException {
-		if (user.getEmail() == null || user.getName() == null
-				|| user.getEmail().isBlank() || user.getName().isBlank()) {
-			log.warn("User not saved. User with empty name or email.");
-			throw new BadRequestException("User with empty name or email.");
-		}
-		if (storage.containsData(user)) {
-			log.warn("User not saved. User with the same email or name already exists.");
-			throw new UserAlreadyExistsException("User with the same email or name already exists.");
-		}
-		return storage.add(user);
+	public User addUser(User userToSave) throws UserAlreadyExistsException, BadRequestException {
+		if (userToSave.getName() == null || userToSave.getName().isBlank())
+			throw new BadRequestException("User not saved. User with empty name.");
+		if (userToSave.getEmail() == null || userToSave.getEmail().isBlank())
+			throw new BadRequestException("User not saved. User with empty email.");
+		List<User> existingUsers = repository.findByNameOrEmail(userToSave.getName(), userToSave.getEmail());
+		if (!existingUsers.isEmpty())
+			throw new UserAlreadyExistsException("User not saved. User with same name or email already exists.");
+		return repository.save(userToSave);
 	}
 
 	@Override
-	public User updateUser(User user, int userId) throws UserNotFoundException {
-		user.setId(userId);
-		if (storage.containsData(user)) {
-			log.warn("User not updated. User with the same email or name already exists.");
-			throw new UserAlreadyExistsException("User with the same email or name already exists.");
-		}
-		if (!storage.containsKey(userId)) {
-			log.warn("User not updated. User with id [" + userId + "] not exists.");
-			throw new UserNotFoundException("User with id [" + userId + "] not exists.");
-		}
-		return storage.update(user);
+	public User updateUser(User dataToUpdate, int userId) throws UserNotFoundException, UserAlreadyExistsException {
+		List<User> existingUsers = repository.findByIdOrNameOrEmail(userId, dataToUpdate.getName(), dataToUpdate.getEmail());
+		User updatableUser = getUpdatableUser(dataToUpdate, userId, existingUsers).orElseThrow(
+				() -> new UserNotFoundException("User not updated. User with id [" + userId + "] not exists.")
+		);
+		if (dataToUpdate.getName() != null)
+			updatableUser.setName(dataToUpdate.getName());
+		if (dataToUpdate.getEmail() != null)
+			updatableUser.setEmail(dataToUpdate.getEmail());
+		return repository.save(updatableUser);
 	}
 
 	@Override
 	public List<User> getAllUsers() {
-		return storage.getAll();
+		return repository.findAll();
 	}
 
 	@Override
 	public User getUserById(int userId) throws UserNotFoundException {
-		Optional<User> user = storage.get(userId);
-		if (user.isEmpty()) {
-			log.warn("User not found. User with id [" + userId + "] not exists.");
-			throw new UserNotFoundException("User with id [" + userId + "] not exists.");
-		}
-		return user.get();
+		return repository.findById(userId).orElseThrow(
+				() -> new UserNotFoundException("User with id [" + userId + "] not exists.")
+		);
 	}
 
 	@Override
 	public User deleteUserById(int userId) throws UserNotFoundException {
-		Optional<User> user = storage.deleteByKey(userId);
-		if (user.isEmpty()) {
-			log.warn("User not deleted. User with id [" + userId + "] not exists.");
-			throw new UserNotFoundException("User with id [" + userId + "] not exists.");
+		User userToDelete = repository.findById(userId).orElseThrow(
+				() -> new UserNotFoundException("User with id [" + userId + "] not exists.")
+		);
+		repository.deleteById(userId);
+		return userToDelete;
+	}
+
+	private Optional<User> getUpdatableUser(User dataToUpdate, int userId, List<User> existingUsers) {
+		User updatableUser = null;
+		for (User existingUser : existingUsers) {
+			if (!existingUser.getId().equals(userId)) {
+				if (existingUser.getName().equals(dataToUpdate.getName()))
+					throw new UserAlreadyExistsException("User not updated. User with the name [" + dataToUpdate.getName()
+							+ "] already exists.");
+				if (existingUser.getEmail().equals(dataToUpdate.getEmail()))
+					throw new UserAlreadyExistsException("User not updated. User with the email [" + dataToUpdate.getEmail()
+							+ "] already exists.");
+			} else {
+				updatableUser = existingUser;
+			}
 		}
-		return user.get();
+		return Optional.ofNullable(updatableUser);
 	}
 }
