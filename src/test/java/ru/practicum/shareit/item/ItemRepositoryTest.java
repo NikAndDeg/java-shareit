@@ -4,15 +4,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.jdbc.Sql;
-import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
-import java.util.List;
-
-import static ru.practicum.shareit.DataForTests.*;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static ru.practicum.shareit.DataForTests.savedItems;
+import static ru.practicum.shareit.DataForTests.savedUsers;
 
 @DataJpaTest
 @Sql("/test_schema.sql")

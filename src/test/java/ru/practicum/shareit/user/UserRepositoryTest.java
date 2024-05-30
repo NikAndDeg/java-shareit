@@ -10,9 +10,9 @@ import ru.practicum.shareit.user.model.User;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static ru.practicum.shareit.DataForTests.*;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @Sql("/test_schema.sql")

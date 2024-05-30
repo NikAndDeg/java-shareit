@@ -27,6 +27,9 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
+	private final static int ITEM_MAX_NAME_SIZE = 200;
+	private final static int ITEM_MAX_DESCRIPTION_SIZE = 200;
+
 	private final UserRepository userRepository;
 	private final ItemRepository itemRepository;
 	private final BookingRepository bookingRepository;
@@ -171,11 +174,11 @@ public class ItemServiceImpl implements ItemService {
 
 	private void setUpdatedFieldsToUpdatableItem(ItemDto itemDto, Item updatableItem) {
 		String newName = itemDto.getName();
-		if (newName != null && !newName.isBlank() && newName.length() < ItemDto.ITEM_MAX_NAME_SIZE)
+		if (newName != null && !newName.isBlank() && newName.length() < ITEM_MAX_NAME_SIZE)
 			updatableItem.setName(itemDto.getName());
 
 		String newDescription = itemDto.getDescription();
-		if (newDescription != null && !newDescription.isBlank() && newDescription.length() < ItemDto.ITEM_MAX_DESCRIPTION_SIZE)
+		if (newDescription != null && !newDescription.isBlank() && newDescription.length() < ITEM_MAX_DESCRIPTION_SIZE)
 			updatableItem.setDescription(itemDto.getDescription());
 
 
