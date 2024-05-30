@@ -11,9 +11,8 @@ import javax.validation.constraints.Size;
 @Data
 @Builder
 public class ItemDto {
-	private final static int ITEM_MAX_NAME_SIZE = 200;
-
-	private final static int ITEM_MAX_DESCRIPTION_SIZE = 200;
+	private static final int ITEM_MAX_NAME_SIZE = 200;
+	private static final int ITEM_MAX_DESCRIPTION_SIZE = 200;
 
 	private Integer id;
 

@@ -27,8 +27,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
-	private final static int ITEM_MAX_NAME_SIZE = 200;
-	private final static int ITEM_MAX_DESCRIPTION_SIZE = 200;
+	private static final int ITEM_MAX_NAME_SIZE = 200;
+	private static final int ITEM_MAX_DESCRIPTION_SIZE = 200;
 
 	private final UserRepository userRepository;
 	private final ItemRepository itemRepository;
