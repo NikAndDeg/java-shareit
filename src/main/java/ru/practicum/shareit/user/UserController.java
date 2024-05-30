@@ -3,9 +3,9 @@ package ru.practicum.shareit.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.mapper.DtoMapper;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.model.UserDto;
+import ru.practicum.shareit.user.model.dto.UserDto;
+import ru.practicum.shareit.user.model.dto.UserDtoMapper;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserController {
 	private final UserService userService;
-	private final DtoMapper<UserDto, User> mapper;
+	private final UserDtoMapper mapper;
 
 	@PostMapping
 	public UserDto addUser(@RequestBody @Valid UserDto userDto) {

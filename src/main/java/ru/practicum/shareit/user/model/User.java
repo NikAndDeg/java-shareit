@@ -1,12 +1,17 @@
 package ru.practicum.shareit.user.model;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.item.comment.Comment;
 import ru.practicum.shareit.item.model.Item;
 
 import javax.persistence.*;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -29,7 +34,17 @@ public class User {
 	@OneToMany(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	@ToString.Exclude
-	private List<Item> items;
+	private Set<Item> items;
+
+	@OneToMany(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id")
+	@ToString.Exclude
+	private List<Booking> bookings;
+
+	@OneToMany(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id")
+	@ToString.Exclude
+	private List<Comment> comments;
 
 	//equals() и hashCode() подрезал отсюда
 	//https://jpa-buddy.com/blog/hopefully-the-final-article-about-equals-and-hashcode-for-jpa-entities-with-db-generated-ids/

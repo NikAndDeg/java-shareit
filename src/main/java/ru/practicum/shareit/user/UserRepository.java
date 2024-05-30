@@ -9,10 +9,11 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Integer> {
 
-	List<User> findByNameOrEmail(String name, String email);
-
 	List<User> findByIdOrNameOrEmail(int id, String name, String email);
 
-	@EntityGraph(type = EntityGraph.EntityGraphType.FETCH, attributePaths = "items")
-	Optional<User> findUserWithItemsById(int id);
+	@EntityGraph(attributePaths = "items")
+	Optional<User> findWithItemsById(int id);
+
+	@EntityGraph(attributePaths = "bookings")
+	Optional<User> findWithBookingsById(int id);
 }

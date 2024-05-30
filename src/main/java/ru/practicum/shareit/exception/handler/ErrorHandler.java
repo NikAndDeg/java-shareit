@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.DataAlreadyExistsException;
 import ru.practicum.shareit.exception.DataNotFoundException;
+import ru.practicum.shareit.exception.booking.BookingNotFoundException;
+import ru.practicum.shareit.exception.booking.BookingUnsupportedStatus;
 import ru.practicum.shareit.exception.user.UserNotOwnerException;
 
 @RestControllerAdvice("ru.practicum.shareit")
@@ -39,5 +41,19 @@ public class ErrorHandler {
 	public ErrorResponse handleUserNotOwner(final UserNotOwnerException exception) {
 		log.warn(exception.getMessage());
 		return new ErrorResponse("error", exception.getMessage());
+	}
+
+	@ExceptionHandler
+	@ResponseStatus(HttpStatus.NOT_FOUND)
+	public ErrorResponse handleBookingNotFound(final BookingNotFoundException exception) {
+		log.warn(exception.getMessage());
+		return new ErrorResponse("error", exception.getMessage());
+	}
+
+	@ExceptionHandler
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public ErrorResponse handleBookingUnsupportedStatus(final BookingUnsupportedStatus exception) {
+		log.warn(exception.getMessage());
+		return new ErrorResponse("Unknown state: " + exception.getMessage(), exception.getMessage());
 	}
 }

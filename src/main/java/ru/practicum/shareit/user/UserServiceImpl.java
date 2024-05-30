@@ -2,6 +2,7 @@ package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.user.UserAlreadyExistsException;
@@ -15,8 +16,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-
-	private final UserRepository repository;
+	private final UserRepository userRepository;
 
 	@Override
 	public User addUser(User userToSave) throws UserAlreadyExistsException, BadRequestException {
@@ -24,15 +24,17 @@ public class UserServiceImpl implements UserService {
 			throw new BadRequestException("User not saved. User with empty name.");
 		if (userToSave.getEmail() == null || userToSave.getEmail().isBlank())
 			throw new BadRequestException("User not saved. User with empty email.");
-		List<User> existingUsers = repository.findByNameOrEmail(userToSave.getName(), userToSave.getEmail());
-		if (!existingUsers.isEmpty())
+		try {
+			User savedUser = userRepository.save(userToSave);
+		} catch (DataIntegrityViolationException exception) {
 			throw new UserAlreadyExistsException("User not saved. User with same name or email already exists.");
-		return repository.save(userToSave);
+		}
+		return userRepository.save(userToSave);
 	}
 
 	@Override
 	public User updateUser(User dataToUpdate, int userId) throws UserNotFoundException, UserAlreadyExistsException {
-		List<User> existingUsers = repository.findByIdOrNameOrEmail(userId, dataToUpdate.getName(), dataToUpdate.getEmail());
+		List<User> existingUsers = userRepository.findByIdOrNameOrEmail(userId, dataToUpdate.getName(), dataToUpdate.getEmail());
 		User updatableUser = getUpdatableUser(dataToUpdate, userId, existingUsers).orElseThrow(
 				() -> new UserNotFoundException("User not updated. User with id [" + userId + "] not exists.")
 		);
@@ -40,27 +42,27 @@ public class UserServiceImpl implements UserService {
 			updatableUser.setName(dataToUpdate.getName());
 		if (dataToUpdate.getEmail() != null)
 			updatableUser.setEmail(dataToUpdate.getEmail());
-		return repository.save(updatableUser);
+		return userRepository.save(updatableUser);
 	}
 
 	@Override
 	public List<User> getAllUsers() {
-		return repository.findAll();
+		return userRepository.findAll();
 	}
 
 	@Override
 	public User getUserById(int userId) throws UserNotFoundException {
-		return repository.findById(userId).orElseThrow(
+		return userRepository.findById(userId).orElseThrow(
 				() -> new UserNotFoundException("User with id [" + userId + "] not exists.")
 		);
 	}
 
 	@Override
 	public User deleteUserById(int userId) throws UserNotFoundException {
-		User userToDelete = repository.findById(userId).orElseThrow(
+		User userToDelete = userRepository.findById(userId).orElseThrow(
 				() -> new UserNotFoundException("User with id [" + userId + "] not exists.")
 		);
-		repository.deleteById(userId);
+		userRepository.deleteById(userId);
 		return userToDelete;
 	}
 

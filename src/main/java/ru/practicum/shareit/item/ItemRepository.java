@@ -9,8 +9,14 @@ import java.util.Optional;
 
 public interface ItemRepository extends JpaRepository<Item, Integer> {
 
-	@EntityGraph(type = EntityGraph.EntityGraphType.FETCH, attributePaths = "owner")
-	Optional<Item> findItemWithOwnerById(int id);
+	@EntityGraph(attributePaths = "owner")
+	Optional<Item> findWithOwnerById(int id);
 
 	List<Item> findItemByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndAvailableIs(String infix1, String infix2, Boolean isAvailable);
+
+	@EntityGraph(value = "item-bookings-owner-graph")
+	List<Item> findWithBookingsWithOwnerByIdIn(List<Integer> ids);
+
+	@EntityGraph(attributePaths = "bookings")
+	List<Item> findWithBookingsAllByOwnerId(int id);
 }

@@ -1,13 +1,12 @@
-package ru.practicum.shareit.user.model;
+package ru.practicum.shareit.user.model.dto;
 
 import org.springframework.stereotype.Component;
-import ru.practicum.shareit.mapper.DtoMapper;
+import ru.practicum.shareit.user.model.User;
 
 @Component
-public class UserDtoMapper implements DtoMapper<UserDto, User> {
+public class UserDtoMapper {
 
-	@Override
-	public UserDto toDto(User model, String... args) {
+	public UserDto toDto(User model) {
 		return UserDto.builder()
 				.id(model.getId())
 				.name(model.getName())
@@ -15,8 +14,7 @@ public class UserDtoMapper implements DtoMapper<UserDto, User> {
 				.build();
 	}
 
-	@Override
-	public User toModel(UserDto dto, String... args) {
+	public User toModel(UserDto dto) {
 		User user = new User();
 		user.setId(dto.getId());
 		user.setName(dto.getName());

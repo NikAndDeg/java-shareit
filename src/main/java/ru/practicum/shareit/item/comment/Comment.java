@@ -1,15 +1,14 @@
-package ru.practicum.shareit.item.model;
+package ru.practicum.shareit.item.comment;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
-import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.item.comment.Comment;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
-import java.util.List;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Getter
@@ -17,41 +16,28 @@ import java.util.Objects;
 @ToString
 //Не забыть аннотировать поля со связями @ToString.Exclude
 @Entity
-@Table(name = "items", schema = "public")
-@NamedEntityGraph(
-		name = "item-bookings-owner-graph",
-		attributeNodes = @NamedAttributeNode(value = "bookings", subgraph = "bookings-user-graph"),
-		subgraphs = @NamedSubgraph(name = "bookings-user-graph", attributeNodes = @NamedAttributeNode("user"))
-)
-public class Item {
+@Table(name = "comments", schema = "public")
+public class Comment {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "item_id")
+	@Column(name = "comment_id")
 	private Integer id;
 
-	@Column(name = "item_name", length = 200, nullable = false)
-	private String name;
+	@Column(name = "text", length = 250, nullable = false)
+	private String text;
 
-	@Column(name = "description", length = 200, nullable = false)
-	private String description;
-
-	@Column(name = "available", nullable = false)
-	private Boolean available;
+	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@JoinColumn(name = "item_id", nullable = false)
+	@ToString.Exclude
+	private Item item;
 
 	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id", nullable = false)
 	@ToString.Exclude
-	private User owner;
+	private User user;
 
-	@OneToMany(fetch = FetchType.LAZY)
-	@JoinColumn(name = "item_id")
-	@ToString.Exclude
-	private List<Booking> bookings;
-
-	@OneToMany(fetch = FetchType.LAZY)
-	@JoinColumn(name = "item_id")
-	@ToString.Exclude
-	private List<Comment> comments;
+	@Column(name = "created", nullable = false)
+	private LocalDateTime created;
 
 	//equals() и hashCode() подрезал отсюда
 	//https://jpa-buddy.com/blog/hopefully-the-final-article-about-equals-and-hashcode-for-jpa-entities-with-db-generated-ids/
@@ -62,8 +48,8 @@ public class Item {
 		Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
 		Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
 		if (thisEffectiveClass != oEffectiveClass) return false;
-		Item item = (Item) o;
-		return getId() != null && Objects.equals(getId(), item.getId());
+		Comment comment = (Comment) o;
+		return getId() != null && Objects.equals(getId(), comment.getId());
 	}
 
 	@Override

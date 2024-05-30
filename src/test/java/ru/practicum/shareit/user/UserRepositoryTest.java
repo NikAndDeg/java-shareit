@@ -51,13 +51,6 @@ class UserRepositoryTest {
 	}
 
 	@Test
-	void get_user_by_name_or_email() {
-		List<User> users = repository.findByNameOrEmail("1", "2@email.com");
-		assertEquals(savedUsers.get(0), users.get(0));
-		assertEquals(savedUsers.get(1), users.get(1));
-	}
-
-	@Test
 	void get_user_by_id_or_name_or_email() {
 		List<User> users = repository.findByIdOrNameOrEmail(1, "2", "3@email.com");
 		assertEquals(savedUsers.get(0), users.get(0));
@@ -72,8 +65,8 @@ class UserRepositoryTest {
 				savedItems.get(0),
 				savedItems.get(2)
 		);
-		User user = repository.findUserWithItemsById(4).get();
-		List<Item> items = user.getItems();
+		User user = repository.findWithItemsById(4).get();
+		List<Item> items = List.copyOf(user.getItems());
 		assertEquals(expectedUser, user);
 		assertEquals(expectedItems.get(0), items.get(0));
 		assertEquals(expectedItems.get(1), items.get(1));
