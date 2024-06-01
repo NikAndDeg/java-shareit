@@ -9,7 +9,7 @@ public interface BookingService {
 
 	BookingDto addBooking(BookingDto bookingDto, int bookerId);
 
-	BookingDto approveBooking(int userId, int bookingId, String approved);
+	BookingDto approveBooking(int userId, int bookingId, boolean approved);
 
 	BookingDto getBooking(int bookingId, int userId);
 

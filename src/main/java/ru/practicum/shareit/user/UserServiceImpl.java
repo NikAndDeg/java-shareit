@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.user.UserAlreadyExistsException;
 import ru.practicum.shareit.exception.user.UserNotFoundException;
@@ -19,6 +20,7 @@ public class UserServiceImpl implements UserService {
 	private final UserRepository userRepository;
 
 	@Override
+	@Transactional
 	public User addUser(User userToSave) throws UserAlreadyExistsException, BadRequestException {
 		if (userToSave.getName() == null || userToSave.getName().isBlank())
 			throw new BadRequestException("User not saved. User with empty name.");
@@ -33,6 +35,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	@Transactional
 	public User updateUser(User dataToUpdate, int userId) throws UserNotFoundException, UserAlreadyExistsException {
 		List<User> existingUsers = userRepository.findByIdOrNameOrEmail(userId, dataToUpdate.getName(), dataToUpdate.getEmail());
 		User updatableUser = getUpdatableUser(dataToUpdate, userId, existingUsers).orElseThrow(
@@ -58,6 +61,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	@Transactional
 	public User deleteUserById(int userId) throws UserNotFoundException {
 		User userToDelete = userRepository.findById(userId).orElseThrow(
 				() -> new UserNotFoundException("User with id [" + userId + "] not exists.")

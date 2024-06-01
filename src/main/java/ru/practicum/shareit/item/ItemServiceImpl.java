@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
@@ -20,7 +21,10 @@ import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -36,6 +40,7 @@ public class ItemServiceImpl implements ItemService {
 	private final CommentRepository commentRepository;
 
 	@Override
+	@Transactional
 	public ItemDto addItem(ItemDto itemDto, int ownerId) {
 		Item item = ItemDto.toModel(itemDto);
 		User owner = userRepository.findById(ownerId).orElseThrow(
@@ -47,6 +52,7 @@ public class ItemServiceImpl implements ItemService {
 	}
 
 	@Override
+	@Transactional
 	public ItemDto updateItem(ItemDto itemDto, int ownerId) {
 		Item updatableItem = itemRepository.findWithOwnerById(itemDto.getId()).orElseThrow(
 				() -> new ItemNotFoundException("Item not updated. Item with id [" + itemDto.getId() + "] not found.")
@@ -109,6 +115,7 @@ public class ItemServiceImpl implements ItemService {
 	}
 
 	@Override
+	@Transactional
 	public ItemDto deleteItemById(int itemId, int ownerId) {
 		Item removableItem = itemRepository.findWithOwnerById(itemId).orElseThrow(
 				() -> new ItemNotFoundException("Item not deleted. Item with id [" + itemId + "] not found.")
@@ -130,6 +137,7 @@ public class ItemServiceImpl implements ItemService {
 	}
 
 	@Override
+	@Transactional
 	public CommentDto addComment(int itemId, int commenterId, CommentDto commentDto) {
 		Comment comment = CommentDto.toModel(commentDto);
 		User userCommenter = userRepository.findById(commenterId).orElseThrow(
@@ -149,15 +157,8 @@ public class ItemServiceImpl implements ItemService {
 	}
 
 	private Map<Integer, List<Comment>> getItemIdComments(List<Comment> comments) {
-		Map<Integer, List<Comment>> itemIdComments = new HashMap<>();
-		for (Comment comment : comments) {
-			int itemId = comment.getItem().getId();
-			if (itemIdComments.get(itemId) == null)
-				itemIdComments.put(itemId, new ArrayList<>());
-			List<Comment> itemComments = itemIdComments.get(itemId);
-			itemComments.add(comment);
-		}
-		return itemIdComments;
+		return comments.stream()
+				.collect(Collectors.groupingBy(comment -> comment.getItem().getId()));
 	}
 
 	private boolean isUserOwner(int userId, Item itemWithOwner) {
@@ -168,7 +169,7 @@ public class ItemServiceImpl implements ItemService {
 		List<Booking> completedBookings = bookingRepository.findAllByUserIdAndItemIdAndStatusAndEndBefore(commenterId,
 				itemId,
 				BookingStatus.APPROVED,
-				LocalDateTime.now());
+				getTimeNow());
 		return !completedBookings.isEmpty();
 	}
 
@@ -192,7 +193,7 @@ public class ItemServiceImpl implements ItemService {
 
 		if (bookings.size() == 1) {
 			Booking booking = bookings.get(0);
-			if (booking.getStart().isAfter(LocalDateTime.now()))
+			if (booking.getStart().isAfter(getTimeNow()))
 				return List.of(Optional.empty(), Optional.of(booking));
 			else
 				return List.of(Optional.of(booking), Optional.empty());
@@ -201,14 +202,14 @@ public class ItemServiceImpl implements ItemService {
 		Booking lastBooking = null;
 		Booking nextBooking = null;
 		for (Booking booking : bookings) {
-			if (booking.getEnd().isBefore(LocalDateTime.now())) {
+			if (booking.getEnd().isBefore(getTimeNow())) {
 				if (lastBooking == null)
 					lastBooking = booking;
 				else if (booking.getEnd().isAfter(lastBooking.getEnd()))
 					lastBooking = booking;
 			}
 
-			if (booking.getStart().isAfter(LocalDateTime.now())) {
+			if (booking.getStart().isAfter(getTimeNow())) {
 				if (nextBooking == null)
 					nextBooking = booking;
 				else if (booking.getStart().isBefore(nextBooking.getStart()))
@@ -216,5 +217,9 @@ public class ItemServiceImpl implements ItemService {
 			}
 		}
 		return List.of(Optional.ofNullable(lastBooking), Optional.ofNullable(nextBooking));
+	}
+
+	private LocalDateTime getTimeNow() {
+		return LocalDateTime.now();
 	}
 }

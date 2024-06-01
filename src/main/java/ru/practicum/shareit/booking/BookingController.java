@@ -30,7 +30,7 @@ public class BookingController {
 	@PatchMapping("/{bookingId}")
 	public BookingDto approveBooking(@RequestHeader(USER_ID_HEADER) int userId,
 									 @PathVariable int bookingId,
-									 @RequestParam String approved) {
+									 @RequestParam boolean approved) {
 		log.info("Request to approve booking with userId [{}], bookingId [{}], approved [{}]",
 				userId,
 				bookingId,
