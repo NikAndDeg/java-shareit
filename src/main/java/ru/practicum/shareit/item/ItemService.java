@@ -1,23 +1,24 @@
 package ru.practicum.shareit.item;
 
-import ru.practicum.shareit.exception.item.ItemNotFoundException;
-import ru.practicum.shareit.exception.user.UserNotFoundException;
-import ru.practicum.shareit.exception.user.UserNotOwnerException;
-import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.comment.CommentDto;
+import ru.practicum.shareit.item.model.dto.ItemBookingsCommentsDto;
+import ru.practicum.shareit.item.model.dto.ItemDto;
 
 import java.util.List;
 
 public interface ItemService {
 
-	Item addItem(Item item) throws UserNotFoundException;
+	ItemDto addItem(ItemDto itemDto, int userId);
 
-	Item updateItem(Item item, int itemId) throws ItemNotFoundException, UserNotOwnerException;
+	ItemDto updateItem(ItemDto itemDto, int ownerId);
 
-	List<Item> getAllItemsByUserId(int userId) throws UserNotFoundException;
+	List<ItemBookingsCommentsDto> getAllItemsByUserId(Integer userId);
 
-	Item getItemById(int itemId) throws ItemNotFoundException;
+	ItemBookingsCommentsDto getItemById(int itemId, int userId);
 
-	Item deleteItemById(int itemId, int userId) throws ItemNotFoundException, UserNotOwnerException;
+	ItemDto deleteItemById(int itemId, int userId);
 
-	List<Item> searchByText(String text);
+	List<ItemDto> searchByText(String text);
+
+	CommentDto addComment(int itemId, int userId, CommentDto commentDto);
 }

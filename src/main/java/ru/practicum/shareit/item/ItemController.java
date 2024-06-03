@@ -3,13 +3,12 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.DtoMapper;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.model.ItemDto;
+import ru.practicum.shareit.item.comment.CommentDto;
+import ru.practicum.shareit.item.model.dto.ItemBookingsCommentsDto;
+import ru.practicum.shareit.item.model.dto.ItemDto;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -18,63 +17,69 @@ import java.util.stream.Collectors;
 public class ItemController {
 	private static final String USER_ID_HEADER = "X-Sharer-User-Id";
 	private final ItemService itemService;
-	private final DtoMapper<ItemDto, Item> mapper;
 
 	@PostMapping
 	public ItemDto addItem(@RequestBody @Valid ItemDto itemDto,
-						   @RequestHeader(USER_ID_HEADER) Integer userId) {
+						   @RequestHeader(USER_ID_HEADER) int userId) {
 		log.info("Request to save item [{}] with userId [{}]", itemDto, userId);
-		Item item = mapper.toModel(itemDto, userId.toString());
-		Item savedItem = itemService.addItem(item);
+		ItemDto savedItem = itemService.addItem(itemDto, userId);
 		log.info("Item [{}] saved.", savedItem);
-		return mapper.toDto(savedItem);
+		return savedItem;
 	}
 
 	@PatchMapping("/{itemId}")
-	public ItemDto updateItem(@RequestBody @Valid ItemDto itemDto,
-							  @RequestHeader(USER_ID_HEADER) Integer userId,
+	public ItemDto updateItem(@RequestBody ItemDto itemDto,
+							  @RequestHeader(USER_ID_HEADER) int userId,
 							  @PathVariable int itemId) {
+		itemDto.setId(itemId);
 		log.info("Request to update item [{}] with userId [{}].", itemDto, userId);
-		Item item = mapper.toModel(itemDto, userId.toString());
-		Item updatedItem = itemService.updateItem(item, itemId);
+		ItemDto updatedItem = itemService.updateItem(itemDto, userId);
 		log.info("Item [{}] updated.", updatedItem);
-		return mapper.toDto(updatedItem);
+		return updatedItem;
 	}
 
 	@GetMapping
-	public List<ItemDto> getAllItems(@RequestHeader(USER_ID_HEADER) int userId) {
+	public List<ItemBookingsCommentsDto> getAllItems(@RequestHeader(USER_ID_HEADER) int userId) {
 		log.info("Request to get all items with userId [{}].", userId);
-		List<Item> items = itemService.getAllItemsByUserId(userId);
+		List<ItemBookingsCommentsDto> itemDtos = itemService.getAllItemsByUserId(userId);
 		log.info("All items received.");
-		return items.stream()
-				.map(mapper::toDto)
-				.collect(Collectors.toList());
+		return itemDtos;
 	}
 
 	@GetMapping("/{itemId}")
-	public ItemDto getItemById(@PathVariable int itemId) {
+	public ItemBookingsCommentsDto getItemById(@RequestHeader(USER_ID_HEADER) int userId,
+											   @PathVariable int itemId) {
 		log.info("Request to get item by id [{}].", itemId);
-		Item item = itemService.getItemById(itemId);
-		log.info("Item [{}] received.", item);
-		return mapper.toDto(item);
+		ItemBookingsCommentsDto itemDto = itemService.getItemById(itemId, userId);
+		log.info("Item [{}] received.", itemDto);
+		return itemDto;
 	}
 
 	@DeleteMapping("/{itemId}")
 	public ItemDto deleteItemById(@PathVariable int itemId,
 								  @RequestHeader(USER_ID_HEADER) int userId) {
 		log.info("Request to delete item by id [{}], with userId [{}].", itemId, userId);
-		Item deletedItem = itemService.deleteItemById(itemId, userId);
-		log.info("Item [{}] deleted.", deletedItem);
-		return mapper.toDto(deletedItem);
+		ItemDto itemDto = itemService.deleteItemById(itemId, userId);
+		log.info("Item [{}] deleted.", itemDto);
+		return itemDto;
 	}
 
 	@GetMapping("/search")
 	public List<ItemDto> searchByText(@RequestParam String text) {
 		log.info("Request to search item by text [{}].", text);
-		List<Item> items = itemService.searchByText(text);
+		List<ItemDto> itemsDtos = itemService.searchByText(text);
 		log.info("Items received.");
-		return items.stream()
-				.map(mapper::toDto)
-				.collect(Collectors.toList());
+		return itemsDtos;
+	}
+
+	@PostMapping("/{itemId}/comment")
+	public CommentDto addComment(@PathVariable int itemId,
+								 @RequestHeader(USER_ID_HEADER) int userId,
+								 @RequestBody @Valid CommentDto commentDto) {
+		log.info("Request to add comment [{}] with itemId [{}] and userId [{}]",
+				commentDto, itemId, userId);
+		CommentDto savedComment = itemService.addComment(itemId, userId, commentDto);
+		log.info("Comment [{}] saved.", savedComment);
+		return savedComment;
 	}
 }
