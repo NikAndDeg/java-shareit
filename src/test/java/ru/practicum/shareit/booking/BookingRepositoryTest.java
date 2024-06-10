@@ -3,43 +3,114 @@ package ru.practicum.shareit.booking;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.jdbc.Sql;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.booking.model.BookingStatus;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static ru.practicum.shareit.DataForTests.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
-@Sql("/test_schema.sql")
+@Sql("/test_booking_repository_schema.sql")
 class BookingRepositoryTest {
 	@Autowired
 	private BookingRepository repository;
 
+	private Pageable pageable = PageRequest.of(0, 20);
+
+	private List<Booking> bookings;
+
+	private Booking booking;
+
 	@Test
-	void get_booking_with_user_and_item_and_item_owner_by_booking_id_1() {
-		Booking booking = repository.findWithRequesterAndItemAndOwnerOfItemById(1).get();
-		Item item = booking.getItem();
-		assertEquals(savedItems.get(0), item);
-		User itemOwner = item.getOwner();
-		assertEquals(savedUsers.get(3), itemOwner);
-		User requester = booking.getUser();
-		assertEquals(savedUsers.get(0), requester);
+	void test_findAllByOwnerId() {
+		bookings = repository.findAllByOwnerId(1, pageable);
+
+		booking = bookings.get(0);
+		assertEquals(1, booking.getId());
+
+		booking = bookings.get(1);
+		assertEquals(2, booking.getId());
+
+		booking = bookings.get(2);
+		assertEquals(3, booking.getId());
 	}
 
 	@Test
-	void get_all_bookings_by_user_id_1() {
-		List<Booking> bookings = repository.findAllByUserId(1);
-		assertEquals(savedBookings.get(0), bookings.get(0));
-		assertEquals(savedBookings.get(2), bookings.get(1));
+	void test_findAllByOwnerIdAndStartBeforeAndEndAfter() {
+		bookings = repository.findAllByOwnerIdAndStartBeforeAndEndAfter(1, getTimeNow(), getTimeNow(), pageable);
+
+		booking = bookings.get(0);
+		assertEquals(2, booking.getId());
+		assertTrue(booking.getStart().isBefore(getTimeNow()));
+		assertTrue(booking.getEnd().isAfter(getTimeNow()));
 	}
 
 	@Test
-	void get_all_by_owner_id() {
-		List<Booking> bookings = repository.findAllByOwnerId(2);
-		bookings.forEach(System.out::println);
+	void test_findAllByOwnerIdAndEndBefore() {
+		bookings = repository.findAllByOwnerIdAndEndBefore(1, getTimeNow(), pageable);
+
+		booking = bookings.get(0);
+		assertEquals(1, booking.getId());
+		assertTrue(booking.getEnd().isBefore(getTimeNow()));
+	}
+
+	@Test
+	void test_findAllByOwnerIdAndStartAfter() {
+		bookings = repository.findAllByOwnerIdAndStartAfter(1, getTimeNow(), pageable);
+
+		booking = bookings.get(0);
+		assertEquals(3, booking.getId());
+		assertTrue(booking.getStart().isAfter(getTimeNow()));
+	}
+
+	@Test
+	void test_findAllByOwnerIdAndStatusIs_WAITING() {
+		bookings = repository.findAllByOwnerIdAndStatusIs(1, BookingStatus.WAITING, pageable);
+
+		booking = bookings.get(0);
+		assertEquals(1, booking.getId());
+		assertEquals(BookingStatus.WAITING, booking.getStatus());
+	}
+
+	@Test
+	void test_findAllByOwnerIdAndStatusIs_APPROVED() {
+		bookings = repository.findAllByOwnerIdAndStatusIs(1, BookingStatus.APPROVED, pageable);
+
+		booking = bookings.get(0);
+		assertEquals(2, booking.getId());
+		assertEquals(BookingStatus.APPROVED, booking.getStatus());
+	}
+
+	@Test
+	void test_findAllByOwnerIdAndStatusIs_REJECTED() {
+		bookings = repository.findAllByOwnerIdAndStatusIs(1, BookingStatus.REJECTED, pageable);
+
+		booking = bookings.get(0);
+		assertEquals(3, booking.getId());
+		assertEquals(BookingStatus.REJECTED, booking.getStatus());
+	}
+
+	@Test
+	void test_findWithBookerAllByItemIdAndStatusIn() {
+		bookings = repository.findWithBookerAllByItemIdAndStatusIn(1,
+				List.of(BookingStatus.WAITING, BookingStatus.APPROVED));
+
+		booking = bookings.get(0);
+		assertEquals(1, booking.getId());
+		assertEquals(BookingStatus.WAITING, booking.getStatus());
+
+		booking = bookings.get(1);
+		assertEquals(2, booking.getId());
+		assertEquals(BookingStatus.APPROVED, booking.getStatus());
+	}
+
+	private LocalDateTime getTimeNow() {
+		return LocalDateTime.now();
 	}
 }

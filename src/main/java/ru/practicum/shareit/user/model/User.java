@@ -7,6 +7,7 @@ import org.hibernate.proxy.HibernateProxy;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.comment.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.model.ItemRequest;
 
 import javax.persistence.*;
 import java.util.List;
@@ -19,6 +20,11 @@ import java.util.Set;
 //Не забыть аннотировать поля со связями @ToString.Exclude
 @Entity
 @Table(name = "users", schema = "public")
+@NamedEntityGraph(
+		name = "user-requests-items",
+		attributeNodes = @NamedAttributeNode(value = "requests", subgraph = "requests-items"),
+		subgraphs = @NamedSubgraph(name = "requests-items", attributeNodes = @NamedAttributeNode("items"))
+)
 public class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,6 +51,11 @@ public class User {
 	@JoinColumn(name = "user_id")
 	@ToString.Exclude
 	private List<Comment> comments;
+
+	@OneToMany(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id")
+	@ToString.Exclude
+	private List<ItemRequest> requests;
 
 	//equals() и hashCode() подрезал отсюда
 	//https://jpa-buddy.com/blog/hopefully-the-final-article-about-equals-and-hashcode-for-jpa-entities-with-db-generated-ids/

@@ -6,6 +6,7 @@ import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.comment.Comment;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
@@ -52,6 +53,11 @@ public class Item {
 	@JoinColumn(name = "item_id")
 	@ToString.Exclude
 	private List<Comment> comments;
+
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "request_id")
+	@ToString.Exclude
+	private ItemRequest request;
 
 	//equals() и hashCode() подрезал отсюда
 	//https://jpa-buddy.com/blog/hopefully-the-final-article-about-equals-and-hashcode-for-jpa-entities-with-db-generated-ids/

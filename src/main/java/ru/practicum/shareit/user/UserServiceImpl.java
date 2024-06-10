@@ -9,9 +9,11 @@ import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.user.UserAlreadyExistsException;
 import ru.practicum.shareit.exception.user.UserNotFoundException;
 import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.model.dto.UserDto;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -21,53 +23,58 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	@Transactional
-	public User addUser(User userToSave) throws UserAlreadyExistsException, BadRequestException {
+	public UserDto addUser(UserDto userDtoToSave) {
+		User userToSave = UserDto.toModel(userDtoToSave);
 		if (userToSave.getName() == null || userToSave.getName().isBlank())
 			throw new BadRequestException("User not saved. User with empty name.");
 		if (userToSave.getEmail() == null || userToSave.getEmail().isBlank())
 			throw new BadRequestException("User not saved. User with empty email.");
 		try {
 			User savedUser = userRepository.save(userToSave);
+			return UserDto.toDto(savedUser);
 		} catch (DataIntegrityViolationException exception) {
 			throw new UserAlreadyExistsException("User not saved. User with same name or email already exists.");
 		}
-		return userRepository.save(userToSave);
 	}
 
 	@Override
 	@Transactional
-	public User updateUser(User dataToUpdate, int userId) throws UserNotFoundException, UserAlreadyExistsException {
-		List<User> existingUsers = userRepository.findByIdOrNameOrEmail(userId, dataToUpdate.getName(), dataToUpdate.getEmail());
-		User updatableUser = getUpdatableUser(dataToUpdate, userId, existingUsers).orElseThrow(
+	public UserDto updateUser(UserDto userDtoToUpdate, int userId) {
+		User userToUpdate = UserDto.toModel(userDtoToUpdate);
+		List<User> existingUsers = userRepository.findByIdOrNameOrEmail(userId, userToUpdate.getName(), userToUpdate.getEmail());
+		User updatableUser = getUpdatableUser(userToUpdate, userId, existingUsers).orElseThrow(
 				() -> new UserNotFoundException("User not updated. User with id [" + userId + "] not exists.")
 		);
-		if (dataToUpdate.getName() != null)
-			updatableUser.setName(dataToUpdate.getName());
-		if (dataToUpdate.getEmail() != null)
-			updatableUser.setEmail(dataToUpdate.getEmail());
-		return userRepository.save(updatableUser);
+		if (userToUpdate.getName() != null)
+			updatableUser.setName(userToUpdate.getName());
+		if (userToUpdate.getEmail() != null)
+			updatableUser.setEmail(userToUpdate.getEmail());
+		return UserDto.toDto(userRepository.save(updatableUser));
 	}
 
 	@Override
-	public List<User> getAllUsers() {
-		return userRepository.findAll();
+	public List<UserDto> getAllUsers() {
+		return userRepository.findAll().stream()
+				.map(UserDto::toDto)
+				.collect(Collectors.toList());
 	}
 
 	@Override
-	public User getUserById(int userId) throws UserNotFoundException {
-		return userRepository.findById(userId).orElseThrow(
+	public UserDto getUserById(int userId) {
+		User user = userRepository.findById(userId).orElseThrow(
 				() -> new UserNotFoundException("User with id [" + userId + "] not exists.")
 		);
+		return UserDto.toDto(user);
 	}
 
 	@Override
 	@Transactional
-	public User deleteUserById(int userId) throws UserNotFoundException {
+	public UserDto deleteUserById(int userId) {
 		User userToDelete = userRepository.findById(userId).orElseThrow(
 				() -> new UserNotFoundException("User with id [" + userId + "] not exists.")
 		);
 		userRepository.deleteById(userId);
-		return userToDelete;
+		return UserDto.toDto(userToDelete);
 	}
 
 	private Optional<User> getUpdatableUser(User dataToUpdate, int userId, List<User> existingUsers) {

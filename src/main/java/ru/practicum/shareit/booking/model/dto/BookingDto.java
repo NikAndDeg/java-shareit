@@ -41,7 +41,6 @@ public class BookingDto {
 				.id(model.getId())
 				.start(model.getStart())
 				.end(model.getEnd())
-				.itemId(model.getItem().getId())
 				.status(model.getStatus())
 				.build();
 		bookingDto.setItem(ItemDto.toDto(item));

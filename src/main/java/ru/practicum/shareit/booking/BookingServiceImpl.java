@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
@@ -87,7 +88,7 @@ public class BookingServiceImpl implements BookingService {
 	}
 
 	@Override
-	public List<BookingDto> getUserBookings(int userId, State state) {
+	public List<BookingDto> getUserBookings(int userId, State state, Pageable pageable) {
 		userRepository.findById(userId).orElseThrow(
 				() -> new UserNotFoundException("User with id [" + userId + "] not exists.")
 		);
@@ -96,22 +97,27 @@ public class BookingServiceImpl implements BookingService {
 			case CURRENT:
 				bookings = bookingRepository.findAllByUserIdAndStartBeforeAndEndAfter(userId,
 						getTimeNow(),
-						getTimeNow());
+						getTimeNow(),
+						pageable);
 				break;
 			case PAST:
-				bookings = bookingRepository.findWithItemAndUserAllByUserIdAndEndBefore(userId, getTimeNow());
+				bookings = bookingRepository.findWithItemAndUserAllByUserIdAndEndBefore(userId,
+						getTimeNow(),
+						pageable);
 				break;
 			case FUTURE:
-				bookings = bookingRepository.findAllByUserIdAndStartAfter(userId, getTimeNow());
+				bookings = bookingRepository.findAllByUserIdAndStartAfter(userId,
+						getTimeNow(),
+						pageable);
 				break;
 			case WAITING:
-				bookings = bookingRepository.findAllByUserIdAndStatusIs(userId, WAITING);
+				bookings = bookingRepository.findAllByUserIdAndStatusIs(userId, WAITING, pageable);
 				break;
 			case REJECTED:
-				bookings = bookingRepository.findAllByUserIdAndStatusIs(userId, REJECTED);
+				bookings = bookingRepository.findAllByUserIdAndStatusIs(userId, REJECTED, pageable);
 				break;
 			default:
-				bookings = bookingRepository.findAllByUserId(userId);
+				bookings = bookingRepository.findAllByUserId(userId, pageable);
 		}
 		return bookings.stream()
 				.map(booking -> BookingDto.toDto(booking, booking.getItem(), booking.getUser()))
@@ -120,7 +126,7 @@ public class BookingServiceImpl implements BookingService {
 	}
 
 	@Override
-	public List<BookingDto> getOwnerBookings(int ownerId, State state) {
+	public List<BookingDto> getOwnerBookings(int ownerId, State state, Pageable pageable) {
 		userRepository.findById(ownerId).orElseThrow(
 				() -> new UserNotFoundException("User with id [" + ownerId + "] not exists.")
 		);
@@ -129,26 +135,32 @@ public class BookingServiceImpl implements BookingService {
 			case CURRENT:
 				bookings = bookingRepository.findAllByOwnerIdAndStartBeforeAndEndAfter(ownerId,
 						getTimeNow(),
-						getTimeNow());
+						getTimeNow(),
+						pageable);
 				break;
 			case PAST:
-				bookings = bookingRepository.findAllByOwnerIdAndEndBefore(ownerId, getTimeNow());
+				bookings = bookingRepository.findAllByOwnerIdAndEndBefore(ownerId,
+						getTimeNow(),
+						pageable);
 				break;
 			case FUTURE:
-				bookings = bookingRepository.findAllByOwnerIdAndStartAfter(ownerId, getTimeNow());
+				bookings = bookingRepository.findAllByOwnerIdAndStartAfter(ownerId,
+						getTimeNow(),
+						pageable);
 				break;
 			case WAITING:
-				bookings = bookingRepository.findAllByOwnerIdAndStatusIs(ownerId, WAITING);
+				bookings = bookingRepository.findAllByOwnerIdAndStatusIs(ownerId, WAITING, pageable);
 				break;
 			case REJECTED:
-				bookings = bookingRepository.findAllByOwnerIdAndStatusIs(ownerId, REJECTED);
+				bookings = bookingRepository.findAllByOwnerIdAndStatusIs(ownerId, REJECTED, pageable);
 				break;
 			default:
-				bookings = bookingRepository.findAllByOwnerId(ownerId);
+				bookings = bookingRepository.findAllByOwnerId(ownerId, pageable);
 		}
 		return bookings.stream()
 				.map(booking -> BookingDto.toDto(booking, booking.getItem(), booking.getUser()))
-				.sorted(BookingDto.startComparator).collect(Collectors.toList());
+				.sorted(BookingDto.startComparator)
+				.collect(Collectors.toList());
 	}
 
 	private boolean isValidBookingStartEndTime(LocalDateTime start, LocalDateTime end) {
