@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = UserController.class)
 class UserControllerTest {
-	private final static String HEADER_X_SHARER_USER_ID = "X-Sharer-User-Id";
+	private static final String HEADER_X_SHARER_USER_ID = "X-Sharer-User-Id";
 
 	private UserDto userDto;
 

@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = BookingController.class)
 class BookingControllerTest {
-	private final static String HEADER_X_SHARER_USER_ID = "X-Sharer-User-Id";
+	private static final String HEADER_X_SHARER_USER_ID = "X-Sharer-User-Id";
 
 	private final BookingDto dtoTo = BookingDto.builder()
 			.itemId(1)
