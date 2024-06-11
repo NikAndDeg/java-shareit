@@ -12,14 +12,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 class ItemRequestMapperDtoTest {
-	private Integer id = 1;
-	private String description = "description";
-	private LocalDateTime created = LocalDateTime.parse("2024-01-01T10:10:10");
-	private Set<Item> items = Set.of(
+	private static final Integer id = 1;
+	private static final String description = "description";
+	private static final LocalDateTime created = LocalDateTime.parse("2024-01-01T10:10:10");
+	private final Set<Item> items = Set.of(
 			createItem(1, "item", "d", true),
 			createItem(2, "item2", "d", true)
 	);
-	private User requester = createUser(1, "Anthony John Soprano", "tony@email.com");
+	private final User requester = createUser(1, "Anthony John Soprano", "tony@email.com");
 
 	private Item createItem(int id, String name, String description, boolean available) {
 		Item item = new Item();

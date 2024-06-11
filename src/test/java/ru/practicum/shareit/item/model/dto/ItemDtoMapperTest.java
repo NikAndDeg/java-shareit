@@ -6,11 +6,11 @@ import ru.practicum.shareit.item.model.Item;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ItemDtoMapperTest {
-	private Integer id = 1;
-	private String name = "item";
-	private String description = "description";
-	private Boolean available = true;
-	private Integer requestId = 2;
+	private static final Integer id = 1;
+	private static final String name = "item";
+	private static final String description = "description";
+	private static final Boolean available = true;
+	private static final Integer requestId = 2;
 
 	private ItemDto dto;
 	private Item model;

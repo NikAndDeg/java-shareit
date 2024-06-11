@@ -15,10 +15,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 class ItemBookingsCommentsDtoMapperTest {
 
-	private Integer id = 1;
-	private String name = "item";
-	private String description = "description";
-	private Boolean available = true;
+	private static final Integer id = 1;
+	private static final String name = "item";
+	private static final  String description = "description";
+	private static final  Boolean available = true;
 
 	private Booking lastBooking = createBooking(1,
 			LocalDateTime.parse("2020-01-01T10:10:10"),

@@ -12,19 +12,19 @@ import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class BookingDtoMapperTest {
-	private final int bookingId = 1;
-	private final LocalDateTime start = LocalDateTime.parse("2024-01-01T10:10:10");
-	private final LocalDateTime end = LocalDateTime.parse("2025-01-01T10:10:10");
-	private final BookingStatus status = BookingStatus.WAITING;
+	private static final int bookingId = 1;
+	private static final LocalDateTime start = LocalDateTime.parse("2024-01-01T10:10:10");
+	private static final LocalDateTime end = LocalDateTime.parse("2025-01-01T10:10:10");
+	private static final BookingStatus status = BookingStatus.WAITING;
 
-	private final int itemId = 10;
-	private final String itemName = "item";
-	private final String itemDescription = "description";
-	private final boolean itemAvailable = true;
+	private static final int itemId = 10;
+	private static final String itemName = "item";
+	private static final String itemDescription = "description";
+	private static final boolean itemAvailable = true;
 
-	private final int userId = 2;
-	private final String userName = "user";
-	private final String userEmail = "user@email.com";
+	private static final int userId = 2;
+	private static final String userName = "user";
+	private static final String userEmail = "user@email.com";
 
 	private Booking booking;
 	private Item item;

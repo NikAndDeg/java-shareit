@@ -6,11 +6,11 @@ import ru.practicum.shareit.user.model.User;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class UserDtoMapperTest {
-	private Integer id = 1;
-	private String name = "Anthony John Soprano";
-	private String email = "tony@email.com";
-	private UserDto dto;
-	private User model;
+	private static final Integer id = 1;
+	private static final String name = "Anthony John Soprano";
+	private static final String email = "tony@email.com";
+	private static UserDto dto;
+	private static User model;
 
 	@Test
 	void test_toDto() {

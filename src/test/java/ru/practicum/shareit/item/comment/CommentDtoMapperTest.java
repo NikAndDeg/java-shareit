@@ -9,10 +9,10 @@ import java.time.temporal.ChronoUnit;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CommentDtoMapperTest {
-	private final Integer id = 1;
-	private final String text = "In the end, your friends are gonna let you down. Family. They're the ones you can depend on.";
-	private final String authorName = "Anthony John Soprano";
-	private final LocalDateTime created = LocalDateTime.parse("2024-01-01T10:10:10");
+	private static final Integer id = 1;
+	private static final String text = "In the end, your friends are gonna let you down. Family. They're the ones you can depend on.";
+	private static final String authorName = "Anthony John Soprano";
+	private static final LocalDateTime created = LocalDateTime.parse("2024-01-01T10:10:10");
 
 	private CommentDto dto;
 	private Comment model;

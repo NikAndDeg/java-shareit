@@ -31,7 +31,7 @@ class ItemRequestControllerTest {
 	private ItemRequestDto requestDto;
 
 	@MockBean
-	ItemRequestService requestService;
+	private ItemRequestService requestService;
 
 	@Autowired
 	private MockMvc mvc;
