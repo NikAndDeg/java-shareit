@@ -27,12 +27,24 @@ public class ItemDto {
 	@NotNull
 	private Boolean available;
 
+	private Integer requestId;
+
 	public static ItemDto toDto(Item item) {
 		return ItemDto.builder()
 				.id(item.getId())
 				.name(item.getName())
 				.description(item.getDescription())
 				.available(item.getAvailable())
+				.build();
+	}
+
+	public static ItemDto toDto(Item item, int requestId) {
+		return ItemDto.builder()
+				.id(item.getId())
+				.name(item.getName())
+				.description(item.getDescription())
+				.available(item.getAvailable())
+				.requestId(requestId)
 				.build();
 	}
 

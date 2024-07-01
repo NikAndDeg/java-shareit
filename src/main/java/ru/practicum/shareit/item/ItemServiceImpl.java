@@ -2,12 +2,14 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.exception.BadRequestException;
+import ru.practicum.shareit.exception.DataNotFoundException;
 import ru.practicum.shareit.exception.item.ItemNotFoundException;
 import ru.practicum.shareit.exception.user.UserNotFoundException;
 import ru.practicum.shareit.exception.user.UserNotOwnerException;
@@ -17,6 +19,8 @@ import ru.practicum.shareit.item.comment.CommentRepository;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.model.dto.ItemBookingsCommentsDto;
 import ru.practicum.shareit.item.model.dto.ItemDto;
+import ru.practicum.shareit.request.ItemRequestRepository;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
@@ -38,6 +42,7 @@ public class ItemServiceImpl implements ItemService {
 	private final ItemRepository itemRepository;
 	private final BookingRepository bookingRepository;
 	private final CommentRepository commentRepository;
+	private final ItemRequestRepository requestRepository;
 
 	@Override
 	@Transactional
@@ -46,9 +51,19 @@ public class ItemServiceImpl implements ItemService {
 		User owner = userRepository.findById(ownerId).orElseThrow(
 				() -> new UserNotFoundException("Item not saved. Owner of item with id [" + ownerId + "] not exists.")
 		);
+		Integer requestId = itemDto.getRequestId();
+		if (requestId != null) {
+			ItemRequest request = requestRepository.findById(itemDto.getRequestId()).orElseThrow(
+					() -> new DataNotFoundException("Request with id [" + requestId + "] not found.")
+			);
+			item.setRequest(request);
+		}
 		item.setOwner(owner);
 		Item savedItem = itemRepository.save(item);
-		return ItemDto.toDto(savedItem);
+		ItemDto savedItemDto = ItemDto.toDto(savedItem);
+		if (requestId != null)
+			savedItemDto.setRequestId(requestId);
+		return savedItemDto;
 	}
 
 	@Override
@@ -66,18 +81,22 @@ public class ItemServiceImpl implements ItemService {
 	}
 
 	@Override
-	public List<ItemBookingsCommentsDto> getAllItemsByUserId(Integer userId) throws UserNotFoundException {
-		User user = userRepository.findWithItemsById(userId).orElseThrow(
+	public List<ItemBookingsCommentsDto> getAllItemsByUserId(int userId, Pageable pageable) {
+		userRepository.findById(userId).orElseThrow(
 				() -> new UserNotFoundException("Items not received. User with id [" + userId + "] not exists.")
 		);
-		if (user.getItems().isEmpty())
+
+		List<Item> itemsWithBookings = itemRepository.findWithBookingsWithOwnerByOwnerId(userId, pageable);
+		if (itemsWithBookings.isEmpty())
 			return new ArrayList<>();
-		List<Integer> itemsIds = user.getItems().stream()
+		List<Integer> itemsIds = itemsWithBookings.stream()
 				.map(Item::getId)
 				.collect(Collectors.toList());
-		List<Item> itemsWithBookings = itemRepository.findWithBookingsWithOwnerByIdIn(itemsIds);
+
 		List<Comment> comments = commentRepository.findWithItemWithCommenterAllByItemIdIn(itemsIds);
+
 		Map<Integer, List<Comment>> itemIdComments = getItemIdComments(comments);
+
 		return itemsWithBookings.stream()
 				.map(
 						item -> {
@@ -127,10 +146,13 @@ public class ItemServiceImpl implements ItemService {
 	}
 
 	@Override
-	public List<ItemDto> searchByText(String text) {
+	public List<ItemDto> searchByText(String text, Pageable pageable) {
 		if (text.isBlank())
 			return new ArrayList<>();
-		List<Item> items = itemRepository.findItemByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndAvailableIs(text, text, true);
+		List<Item> items = itemRepository.findItemByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndAvailableIs(text,
+				text,
+				true,
+				pageable);
 		return items.stream()
 				.map(ItemDto::toDto)
 				.collect(Collectors.toList());
@@ -181,7 +203,6 @@ public class ItemServiceImpl implements ItemService {
 		String newDescription = itemDto.getDescription();
 		if (newDescription != null && !newDescription.isBlank() && newDescription.length() < ITEM_MAX_DESCRIPTION_SIZE)
 			updatableItem.setDescription(itemDto.getDescription());
-
 
 		if (itemDto.getAvailable() != null)
 			updatableItem.setAvailable(itemDto.getAvailable());

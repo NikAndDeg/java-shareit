@@ -2,10 +2,12 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.comment.CommentDto;
 import ru.practicum.shareit.item.model.dto.ItemBookingsCommentsDto;
 import ru.practicum.shareit.item.model.dto.ItemDto;
+import ru.practicum.shareit.util.Pagenator;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -39,9 +41,12 @@ public class ItemController {
 	}
 
 	@GetMapping
-	public List<ItemBookingsCommentsDto> getAllItems(@RequestHeader(USER_ID_HEADER) int userId) {
+	public List<ItemBookingsCommentsDto> getAllItems(@RequestHeader(USER_ID_HEADER) int userId,
+													 @RequestParam(defaultValue = "0") int from,
+													 @RequestParam(defaultValue = "20") int size) {
 		log.info("Request to get all items with userId [{}].", userId);
-		List<ItemBookingsCommentsDto> itemDtos = itemService.getAllItemsByUserId(userId);
+		Pageable pageable = Pagenator.getPage(from, size);
+		List<ItemBookingsCommentsDto> itemDtos = itemService.getAllItemsByUserId(userId, pageable);
 		log.info("All items received.");
 		return itemDtos;
 	}
@@ -65,9 +70,12 @@ public class ItemController {
 	}
 
 	@GetMapping("/search")
-	public List<ItemDto> searchByText(@RequestParam String text) {
+	public List<ItemDto> searchByText(@RequestParam String text,
+									  @RequestParam(defaultValue = "0") int from,
+									  @RequestParam(defaultValue = "20") int size) {
 		log.info("Request to search item by text [{}].", text);
-		List<ItemDto> itemsDtos = itemService.searchByText(text);
+		Pageable pageable = Pagenator.getPage(from, size);
+		List<ItemDto> itemsDtos = itemService.searchByText(text, pageable);
 		log.info("Items received.");
 		return itemsDtos;
 	}

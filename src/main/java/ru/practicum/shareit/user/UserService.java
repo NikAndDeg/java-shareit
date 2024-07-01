@@ -2,19 +2,19 @@ package ru.practicum.shareit.user;
 
 import ru.practicum.shareit.exception.user.UserAlreadyExistsException;
 import ru.practicum.shareit.exception.user.UserNotFoundException;
-import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.model.dto.UserDto;
 
 import java.util.List;
 
 public interface UserService {
 
-	User addUser(User user) throws UserAlreadyExistsException;
+	UserDto addUser(UserDto user) throws UserAlreadyExistsException;
 
-	User updateUser(User user, int userId) throws UserNotFoundException;
+	UserDto updateUser(UserDto user, int userId) throws UserNotFoundException;
 
-	List<User> getAllUsers();
+	List<UserDto> getAllUsers();
 
-	User getUserById(int userId) throws UserNotFoundException;
+	UserDto getUserById(int userId) throws UserNotFoundException;
 
-	User deleteUserById(int userId) throws UserNotFoundException;
+	UserDto deleteUserById(int userId) throws UserNotFoundException;
 }

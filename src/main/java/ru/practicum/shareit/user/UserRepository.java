@@ -14,6 +14,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 	@EntityGraph(attributePaths = "items")
 	Optional<User> findWithItemsById(int id);
 
-	@EntityGraph(attributePaths = "bookings")
-	Optional<User> findWithBookingsById(int id);
+	@EntityGraph(value = "user-requests-items")
+	Optional<User> findWithRequestsWithItemsById(int id);
 }

@@ -3,12 +3,10 @@ package ru.practicum.shareit.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.model.dto.UserDto;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -20,44 +18,40 @@ public class UserController {
 	@PostMapping
 	public UserDto addUser(@RequestBody @Valid UserDto userDto) {
 		log.info("Request to save user [{}].", userDto);
-		User user = UserDto.toModel(userDto);
-		User savedUser = userService.addUser(user);
+		UserDto savedUser = userService.addUser(userDto);
 		log.info("User [{}] saved.", savedUser);
-		return UserDto.toDto(savedUser);
+		return savedUser;
 	}
 
 	@PatchMapping("/{userId}")
 	public UserDto updateUser(@RequestBody @Valid UserDto userDto, @PathVariable int userId) {
 		log.info("Request to update user [{}] with id [{}].", userDto, userId);
-		User user = UserDto.toModel(userDto);
-		User updatedUser = userService.updateUser(user, userId);
+		UserDto updatedUser = userService.updateUser(userDto, userId);
 		log.info("User [{}] updated.", updatedUser);
-		return UserDto.toDto(updatedUser);
+		return updatedUser;
 	}
 
 	@GetMapping
 	public List<UserDto> getAllUsers() {
 		log.info("Request to get all users.");
-		List<User> users = userService.getAllUsers();
+		List<UserDto> users = userService.getAllUsers();
 		log.info("All users received.");
-		return users.stream()
-				.map(UserDto::toDto)
-				.collect(Collectors.toList());
+		return users;
 	}
 
 	@GetMapping("/{userId}")
 	public UserDto getUserById(@PathVariable int userId) {
 		log.info("Request to get user by id [{}]", userId);
-		User user = userService.getUserById(userId);
+		UserDto user = userService.getUserById(userId);
 		log.info("User [{}] found.", user);
-		return UserDto.toDto(user);
+		return user;
 	}
 
 	@DeleteMapping("/{userId}")
 	public UserDto deleteUserById(@PathVariable int userId) {
 		log.info("Request to delete user by id [{}]", userId);
-		User deletedUser = userService.deleteUserById(userId);
+		UserDto deletedUser = userService.deleteUserById(userId);
 		log.info("User [{}] deleted.", deletedUser);
-		return UserDto.toDto(deletedUser);
+		return deletedUser;
 	}
 }
