@@ -9,7 +9,7 @@ services:
       - POSTGRES_PASSWORD=shareit
 
   shareit-server:
-    build: /server
+    build: server/
     ports:
       - "8081:8081"
     depends_on:
@@ -23,7 +23,7 @@ services:
       - SHARE_IT_SERVER_PORT=8081
 
   shareit-gateway:
-    build: /gateway
+    build: gateway/
     ports:
       - "8080:8080"
     depends_on:
