@@ -9,7 +9,7 @@ import ru.practicum.shareit.item.model.dto.ItemBookingsCommentsDto;
 import ru.practicum.shareit.item.model.dto.ItemDto;
 import ru.practicum.shareit.util.Pagenator;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.util.List;
 
 @Slf4j

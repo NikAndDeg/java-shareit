@@ -9,7 +9,7 @@ import ru.practicum.shareit.item.model.dto.ItemDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.model.dto.UserDto;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 

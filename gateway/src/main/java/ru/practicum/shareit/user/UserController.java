@@ -1,5 +1,6 @@
 package ru.practicum.shareit.user;
 
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -11,7 +12,7 @@ import reactor.core.publisher.Mono;
 import ru.practicum.shareit.user.dto.UserRequestToSaveDto;
 import ru.practicum.shareit.user.dto.UserRequestToUpdateDto;
 
-import javax.validation.Valid;
+
 
 import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.NOT_FOUND;

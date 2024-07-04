@@ -13,8 +13,8 @@ import ru.practicum.shareit.item.dto.CommentRequestToSaveDto;
 import ru.practicum.shareit.item.dto.ItemRequestToSaveDto;
 import ru.practicum.shareit.item.dto.ItemRequestToUpdateDto;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Min;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 
 import static org.springframework.http.HttpStatus.*;
 

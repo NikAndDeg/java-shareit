@@ -11,8 +11,8 @@ import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 import ru.practicum.shareit.request.dto.ItemRequestRequestToSaveDto;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Min;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 
 import static org.springframework.http.HttpStatus.*;
 
