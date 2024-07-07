@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -9,7 +10,6 @@ import ru.practicum.shareit.item.model.dto.ItemBookingsCommentsDto;
 import ru.practicum.shareit.item.model.dto.ItemDto;
 import ru.practicum.shareit.util.Pagenator;
 
-import jakarta.validation.Valid;
 import java.util.List;
 
 @Slf4j

@@ -1,11 +1,10 @@
 package ru.practicum.shareit.user.model.dto;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
 import ru.practicum.shareit.user.model.User;
-
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Size;
 
 @Data
 @Builder

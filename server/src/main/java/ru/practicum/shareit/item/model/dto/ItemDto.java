@@ -1,12 +1,11 @@
 package ru.practicum.shareit.item.model.dto;
 
-import lombok.Builder;
-import lombok.Data;
-import ru.practicum.shareit.item.model.Item;
-
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
+import lombok.Data;
+import ru.practicum.shareit.item.model.Item;
 
 @Data
 @Builder
