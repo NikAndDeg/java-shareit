@@ -15,6 +15,8 @@ import ru.practicum.shareit.booking.dto.BookingRequestToSaveDto;
 import ru.practicum.shareit.booking.dto.State;
 import ru.practicum.shareit.booking.exception.BookingUnsupportedStatus;
 
+import java.util.stream.Stream;
+
 import static ru.practicum.shareit.ResponseHandler.handleResponseSpec;
 
 @Slf4j
@@ -96,10 +98,9 @@ public class BookingController {
 	}
 
 	private State getState(String state) {
-		for (State s : State.values()) {
-			if (state.equalsIgnoreCase(s.toString()))
-				return s;
-		}
-		throw new BookingUnsupportedStatus(state);
+		return Stream.of(State.values())
+				.filter(s -> s.toString().equalsIgnoreCase(state))
+				.findFirst()
+				.orElseThrow(() -> new BookingUnsupportedStatus(state));
 	}
 }
